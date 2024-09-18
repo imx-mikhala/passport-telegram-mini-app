@@ -10,7 +10,7 @@ const LogoutPage: React.FC = () => {
   useEffect(() => {
     // Redirect after 1 second
     const timer = setTimeout(() => {
-      router.push('/');
+      window.close();
     }, 1000);
 
     // Cleanup the timer on component unmount

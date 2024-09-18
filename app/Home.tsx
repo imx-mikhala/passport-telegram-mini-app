@@ -23,13 +23,18 @@ export default function Home() {
     console.log(passportInstance);
 
     try {
-      const provider = passportInstance.connectEvm();
+      const deviceFlowParams = await passportInstance.loginWithDeviceFlow();
+      window.Telegram.WebApp.openLink(deviceFlowParams.url);
 
+      const user = await passportInstance.loginWithDeviceFlowCallback(deviceFlowParams.deviceCode, deviceFlowParams.interval);
+
+      console.log('User authenticated');
+
+      const provider = passportInstance.connectEvm();
       const [walletAddress] = await provider.request({
         method: 'eth_requestAccounts',
       });
 
-      const user = await passportInstance.getUserInfo();
       console.log('User info:', user);
       setUserInfo(user);
 
@@ -80,10 +85,12 @@ export default function Home() {
     }
 
     try {
-      await passportInstance.logout();
+      const logoutUrl = await passportInstance.logoutDeviceFlow();
+      window.Telegram.WebApp.openLink(logoutUrl);
       console.log(`Logged out of ${passportWalletAddress}`);
       setPassportWalletAddress("");
       setZkEvmProvider(null);
+      setUserInfo(null);
     } catch (error: any) {
       console.log(error);
       setErrorMsg(error.message);
